@@ -1,0 +1,31 @@
+name: Backtest smoke
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install minimal deps
+        run: pip install pandas numpy
+      - name: Import strategy and run a trivial dataframe
+        run: |
+          python -c "
+          import pandas as pd, importlib.util
+          spec = importlib.util.spec_from_file_location('s', 'strategy.py')
+          m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+          bars = pd.DataFrame({{
+              'open': [100, 101, 102], 'high': [101, 102, 103],
+              'low': [99, 100, 101], 'close': [101, 102, 101],
+              'volume': [1, 1, 1], 'vwap': [100, 101, 102], 'n_transactions': [1, 1, 1],
+          }}, index=pd.to_datetime(['2024-01-02','2024-01-03','2024-01-04'], utc=True))
+          out = m.run({{}}, bars)
+          assert hasattr(out, 'index'), 'run() must return a pandas Series'
+          print(f'smoke-test trades: {{len(out)}}')
+          "

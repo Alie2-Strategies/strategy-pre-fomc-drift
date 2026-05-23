@@ -1,0 +1,9 @@
+{
+  "strategy": "strategy-pre-fomc-drift",
+  "defaults": {
+    "ticker": "SPY",
+    "half_spread_bps": 1.0,
+    "lookback_days": 20
+  },
+  "_comment": "Defaults the worker merges into the spec when /backtest/from-repo is invoked. Caller-supplied keys WIN on conflict — these are just sensible starting points so the repo can be backtested with a minimal request body."
+}
